@@ -51,6 +51,7 @@ public class WebConnection extends Thread{
 
     public void run()
     {
+        //getInputFromPlayer();
         String string = "";
 
         // Continuously listen to the client.
@@ -69,20 +70,23 @@ public class WebConnection extends Thread{
         }
     }
 
+    public void getInputFromPlayer()
+    {
+    	String input = "";
 
-//    public String getInputFromPlayer()
-//    {
-//    	String string = "";
-//
-//    	try
-//    	{
-//    		string = in.readUTF();
-//    	}
-//    	catch(IOException e)
-//    	{
-//    		System.out.println(e);
-//    	}
-//    }
+    	try
+    	{
+    		input = in.readUTF();
+            changeFromClient(input);
+            System.out.println(input);
+    	}
+    	catch(IOException e)
+    	{
+    		System.out.println(e);
+    	}
+
+    	getInputFromPlayer();
+   }
 
 
 
@@ -137,8 +141,6 @@ public class WebConnection extends Thread{
     {
         while(true)
         {
-            System.out.println("");
-
             if(!fromClient.isEmpty())
             {
                 String string = fromClient.get(0);
@@ -147,10 +149,13 @@ public class WebConnection extends Thread{
                 System.out.println(string);
                 return string;
             }
+            else
+            {
+                try { Thread.sleep(500); }
+                catch(InterruptedException e) {}
+            }
         }
-
     }
-
 
     /**
      * Method for both adding to, and removing from, the fromClient list. If the incoming string is

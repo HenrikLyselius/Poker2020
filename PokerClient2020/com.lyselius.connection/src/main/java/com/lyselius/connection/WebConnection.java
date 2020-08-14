@@ -120,10 +120,23 @@ public class WebConnection extends Thread{
 
     public String getFromServerLog()
     {
-        String string = fromServer.get(0);
-        changeFromServer("remove");
+        while(true)
+        {
+            if(fromServer.size() > 0)
+            {
+                String string = fromServer.get(0);
+                changeFromServer("remove");
 
-        return string;
+                return string;
+            }
+            else
+            {
+                try { Thread.sleep(60); }
+                catch(InterruptedException e) {}
+            }
+        }
+
+
     }
 
 
@@ -147,8 +160,6 @@ public class WebConnection extends Thread{
 
     public synchronized void changeFromServer(String string)
     {
-
-        //System.out.println(fromServer.size());
 
         if(string.equals("remove"))
         {

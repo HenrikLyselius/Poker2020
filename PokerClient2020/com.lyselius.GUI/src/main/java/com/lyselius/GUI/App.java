@@ -69,7 +69,7 @@ public class App extends Application {
             @Override
             public void handle(long now) {
 
-                if (now - latestUpdate >= 100_000_000) {
+                if (now - latestUpdate >= 10_000_000) {
                     latestUpdate = now ;
                 }
 
