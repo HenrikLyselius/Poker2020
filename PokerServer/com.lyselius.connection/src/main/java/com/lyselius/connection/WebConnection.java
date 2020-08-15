@@ -24,7 +24,7 @@ public class WebConnection extends Thread{
 
 
 
-    public WebConnection(Socket socket, Integer number)
+    public WebConnection(Socket socket)
     {
         this.socket = socket;
         fromClient = new ArrayList<String>();
@@ -62,8 +62,12 @@ public class WebConnection extends Thread{
             {
                 System.out.println(i);
             }
+            try { Thread.sleep(500); }
+            catch(InterruptedException e) {}
         }
     }
+
+
 
     public void getInputFromPlayer()
     {

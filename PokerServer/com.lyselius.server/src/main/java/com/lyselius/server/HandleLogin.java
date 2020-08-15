@@ -30,7 +30,7 @@ public class HandleLogin extends Thread{
 
     public void run()
     {
-        webConnection = new WebConnection(socket, number);
+        webConnection = new WebConnection(socket);
         webConnection.start();
 
         while(isRunning)

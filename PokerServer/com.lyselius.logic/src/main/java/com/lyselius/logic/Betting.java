@@ -178,6 +178,9 @@ public class Betting {
                 bet(player);
                 break;
 
+            case "connectionFail":
+                break;
+
             default:
                 break;
         }
@@ -211,6 +214,10 @@ public class Betting {
 
                 case "call":
                     call(player);
+                    break;
+
+                case "connectionFail":
+                    fold(player);
                     break;
 
                 default:
@@ -250,6 +257,10 @@ public class Betting {
 
                 case "raise":
                     raise(player);
+                    break;
+
+                case "connectionFail":
+                    fold(player);
                     break;
 
                 default:
@@ -479,9 +490,6 @@ public class Betting {
         private String defaultDecision;
 
 
-
-
-
         public TimeToActBeforeDecision(Player player, String defaultDecision)
         {
             this.player = player;
@@ -495,6 +503,10 @@ public class Betting {
 
         public void run()
         {
+            if(player.getWebConnection().isDisconnected())
+            {
+
+            }
             player.getWebConnection().sendToPlayer(defaultDecision);
 
         }

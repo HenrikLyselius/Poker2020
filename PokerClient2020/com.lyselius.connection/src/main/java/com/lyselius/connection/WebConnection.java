@@ -164,12 +164,12 @@ public class WebConnection extends Thread{
         if(string.equals("remove"))
         {
             fromServer.remove(0);
-            System.out.println("Removed one item. Number of items are now " + fromServer.size() + ".");
+            //System.out.println("Removed one item. Number of items are now " + fromServer.size() + ".");
         }
         else
         {
             fromServer.add(string);
-            System.out.println("Added " + string + ". Number of items are now " + fromServer.size() + ".");
+            //System.out.println("Added " + string + ". Number of items are now " + fromServer.size() + ".");
         }
     }
 }
