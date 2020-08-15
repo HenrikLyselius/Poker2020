@@ -20,7 +20,6 @@ public class WebConnection extends Thread{
     private DataOutputStream out = null;
     private Socket socket = null;
     private ArrayList<String> fromClient;
-    //private ArrayBlockingQueue<String> fromClient;
 
 
 
@@ -61,7 +60,7 @@ public class WebConnection extends Thread{
             }
             catch(IOException i)
             {
-                //System.out.println(i);
+                System.out.println(i);
             }
             try { Thread.sleep(500); }
             catch(InterruptedException e) {}
@@ -132,6 +131,7 @@ public class WebConnection extends Thread{
 
 
 
+
     /**
      * Waits until there is a string in the fromClient list. Then clears the string from the list and returns it.
      * @return The first string in the fromClient list.
@@ -156,6 +156,11 @@ public class WebConnection extends Thread{
             }
         }
     }
+
+    /*I now realise, that the construction in this class, that is based on the method below, probably could be
+    * achieved much easier with a BlockingQueue object. I have sort of reinvented the wheel here I think, but since the
+    * code is working fine, I will live it like this for now. */
+
 
     /**
      * Method for both adding to, and removing from, the fromClient list. If the incoming string is

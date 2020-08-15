@@ -313,7 +313,6 @@ public class GameView {
 
     private void positionThePlayerBoxes()
     {
-        System.out.println("Här är vi i playerBoxes.");
         int numberOfPlayers = playerBoxes.size();
 
         if(numberOfPlayers > 0)
@@ -371,7 +370,6 @@ public class GameView {
 
     private void positionTheBettingBoxes()
     {
-        System.out.println("Här är vi i bettingboxes.");
         int numberOfPlayers = playerBoxes.size();
 
         if(numberOfPlayers > 0)
@@ -570,7 +568,6 @@ public class GameView {
     {
         String whichMenu = webConnection.getFromServerLog();
 
-        System.out.println("Här är vi.");
         switch(whichMenu)
         {
             case "checkOrBet":

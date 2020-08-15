@@ -150,13 +150,13 @@ public class WebConnection extends Thread{
     }
 
 
+
     /**
      * Method for both adding to, and removing from, the fromServer list. If the incoming string is
      * "remove", the first string in the list is removed. Otherwise the incoming string is added to
      * the list. The method is synchronized to avoid any potential race conditions.
      * @param string The string to be added, or the signal to remove the first string in fromServer.
      */
-
 
     public synchronized void changeFromServer(String string)
     {

@@ -21,7 +21,6 @@ public class HandleThePlay extends Thread{
     private ArrayBlockingQueue<Player> newPlayers = new ArrayBlockingQueue<Player>(10);
     private ArrayList<Player> playersOnServer = new ArrayList<Player>();
     private int dealerNumber = 0;
-    private int numberOfAddedPlayers = 0;
 
 
     public HandleThePlay()
@@ -33,15 +32,14 @@ public class HandleThePlay extends Thread{
     {
         while(true)
         {
-
             checkIfNewPlayersHaveJoined();
 
             // If there are several players on the server, open a table and start a hand.
             if(getPlayersOnServer().size() > 1)
             {
-                checkIfPlayersAreStillConnected();
-                checkIfPlayersHaveEnoughMoney();
 
+                checkIfPlayersHaveEnoughMoney();
+                checkIfPlayersAreStillConnected();
 
                 if(playersOnServer.size() > 1)
                 {
