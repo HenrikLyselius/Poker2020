@@ -1,0 +1,1 @@
+java --module-path output --module com.lyselius.GUI/com.lyselius.GUI.App
