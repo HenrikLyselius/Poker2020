@@ -503,12 +503,7 @@ public class Betting {
 
         public void run()
         {
-            if(player.getWebConnection().isDisconnected())
-            {
-
-            }
             player.getWebConnection().sendToPlayer(defaultDecision);
-
         }
     };
 

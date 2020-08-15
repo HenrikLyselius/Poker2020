@@ -3,8 +3,7 @@ package com.lyselius.connection;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-
-
+import java.util.concurrent.ArrayBlockingQueue;
 
 
 /**
@@ -21,6 +20,7 @@ public class WebConnection extends Thread{
     private DataOutputStream out = null;
     private Socket socket = null;
     private ArrayList<String> fromClient;
+    //private ArrayBlockingQueue<String> fromClient;
 
 
 
@@ -28,6 +28,7 @@ public class WebConnection extends Thread{
     {
         this.socket = socket;
         fromClient = new ArrayList<String>();
+
 
         try
         {
@@ -60,7 +61,7 @@ public class WebConnection extends Thread{
             }
             catch(IOException i)
             {
-                System.out.println(i);
+                //System.out.println(i);
             }
             try { Thread.sleep(500); }
             catch(InterruptedException e) {}
