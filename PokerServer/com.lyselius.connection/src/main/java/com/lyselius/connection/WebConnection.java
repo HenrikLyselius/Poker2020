@@ -7,7 +7,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 
 /**
- * Objects of this class are supposed to be given to playerobjects, to simplify the code when
+ * Objects of this class are supposed to be given to playerobjects (initially to a handleLogin object), to simplify the code when
  * the server needs to talk to the clients.
  *
  */
@@ -40,13 +40,15 @@ public class WebConnection extends Thread{
         }
     }
 
+
+
     /**
-     * Listens to the client, and puts incoming strings in fromClient list.
+     * Listens to the client, and puts incoming strings in the fromClient list.
      */
 
     public void run()
     {
-        //getInputFromPlayer();
+
         String string = "";
 
         // Continuously listen to the client.
@@ -69,23 +71,7 @@ public class WebConnection extends Thread{
 
 
 
-    public void getInputFromPlayer()
-    {
-    	String input = "";
 
-    	try
-    	{
-    		input = in.readUTF();
-            changeFromClient(input);
-            System.out.println(input);
-    	}
-    	catch(IOException e)
-    	{
-    		System.out.println(e);
-    	}
-
-    	getInputFromPlayer();
-   }
 
 
 
@@ -159,7 +145,7 @@ public class WebConnection extends Thread{
 
     /*I now realise, that the construction in this class, that is based on the method below, probably could be
     * achieved much easier with a BlockingQueue object. I have sort of reinvented the wheel here I think, but since the
-    * code is working fine, I will live it like this for now. */
+    * code is working fine, I will leave it like this for now. */
 
 
     /**

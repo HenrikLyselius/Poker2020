@@ -38,20 +38,14 @@ public class Gameplay {
         // A pause between hands, so everyone can take in the result of the previous hand and prepare for the next.
         sleep(6000);
 
+        setDealer(dealer);
 
-        // Sets who is the dealer.
-        Collections.rotate(playersAtTable, -dealer);
-
-        // Clearing of old variables and general preparation.
-        playersInPot = new ArrayList<Player>(playersAtTable);
-        resetPlayerHands(playersAtTable);
-        communityCards.clear();
+        cleanUpForNewHand();
 
         sendToAllPlayers("newHand");
 
         // Lets all clients catch up and be ready for a new hand.
         sleep(1000);
-
 
         deck = new Deck();
         deck.shuffle();
@@ -65,6 +59,7 @@ public class Gameplay {
 
         // Start preflop betting.
         betting.startBettingRound(2);
+
 
         // Flop
         if(playersInPot.size() > 1)
@@ -115,6 +110,25 @@ public class Gameplay {
         }
 
     }
+
+
+
+
+    private void setDealer(int dealer)
+    {
+        Collections.rotate(playersAtTable, -dealer);
+    }
+
+
+
+    // Clearing of old variables and general preparation.
+    private void cleanUpForNewHand()
+    {
+        playersInPot = new ArrayList<Player>(playersAtTable);
+        resetPlayerHands(playersAtTable);
+        communityCards.clear();
+    }
+
 
 
 
