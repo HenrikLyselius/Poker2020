@@ -452,10 +452,11 @@ public class Betting {
     {
         for(Player player : playersInPot)
         {
-            if(actualBet != player.getActualBet() && player.isAllIn() != true)
+            if(actualBet != player.getActualBet() && !player.isAllIn())
             {
                 return false;
             }
+
         }
 
         return true;

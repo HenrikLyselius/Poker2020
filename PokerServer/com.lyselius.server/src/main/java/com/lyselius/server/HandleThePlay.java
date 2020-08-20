@@ -35,35 +35,26 @@ public class HandleThePlay extends Thread{
         while(true)
         {
             checkIfNewPlayersHaveJoined();
+            checkIfPlayersHaveEnoughMoney();
+            checkIfPlayersAreStillConnected();
+            checkIfOnlyOnePlayerLeftAtTable();
+
+            System.out.println(playersOnServer.size());
 
             // If there are several players on the server, open a table and start a hand.
-            if(getPlayersOnServer().size() > 1)
+            if(playersOnServer.size() > 1)
             {
-                System.out.println("Här i if-satsen");
+                dealerNumber++;
 
-                checkIfPlayersHaveEnoughMoney();
-                checkIfPlayersAreStillConnected();
-                checkIfOnlyOnePlayerLeftAtTable();
+                sendToAllPlayers("sitDownAtTable");
 
-                if(playersOnServer.size() > 1)
-                {
-                    dealerNumber++;
-
-                    sendToAllPlayers("sitDownAtTable");
-
-                    gameplay.setPlayersAtTable(playersOnServer);
-                    gameplay.playHand(dealerNumber % playersOnServer.size());
-
-                    /*checkIfPlayersHaveEnoughMoney();
-                    checkIfPlayersAreStillConnected();
-                    checkIfOnlyOnePlayerLeftAtTable();*/
-                }
+                gameplay.setPlayersAtTable(playersOnServer);
+                gameplay.playHand(dealerNumber % playersOnServer.size());
             }
             else
             {
                 waitAndNotify.doWait();
             }
-
         }
     }
 
@@ -159,11 +150,16 @@ public class HandleThePlay extends Thread{
     public void addNewPlayer(Player player)
     {
         newPlayers.add(player);
-        waitAndNotify.doNotify();
+        doNotify();
     }
 
     public synchronized ArrayList<Player> getPlayersOnServer()
     {
         return playersOnServer;
+    }
+
+    public void doNotify()
+    {
+        waitAndNotify.doNotify();
     }
 }

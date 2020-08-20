@@ -17,18 +17,15 @@ public class HandleLogin extends Thread{
 
     private HandleThePlay handleThePlay;
     private Socket socket;
-    private int number;
     private WebConnection webConnection;
     private boolean isRunning = true;
     private WaitAndNotify waitAndNotify = new WaitAndNotify();
 
 
-    public HandleLogin(HandleThePlay handleThePlay, Socket socket, int number)
+    public HandleLogin(HandleThePlay handleThePlay, Socket socket)
     {
         this.handleThePlay = handleThePlay;
         this.socket = socket;
-        this.number = number;
-
     }
 
     public void run()
@@ -39,8 +36,6 @@ public class HandleLogin extends Thread{
         while(isRunning)
         {
             checkPlayerChoice();
-            try { Thread.sleep(60); }
-            catch(InterruptedException e) {}
         }
     }
 
@@ -69,6 +64,7 @@ public class HandleLogin extends Thread{
 
         System.out.println(username + " " + password);
 
+
         if(userExistsAndPasswordIsCorrect(username, password))
         {
             Player player = Services.getFromDatabase(username);
@@ -80,12 +76,13 @@ public class HandleLogin extends Thread{
                 webConnection.sendToPlayer("correctLogin");
                 webConnection.sendToPlayer(player.getUsername());
 
-                //handleThePlay.getPlayersOnServer().add(player);
                 handleThePlay.addNewPlayer(player);
 
-
-
                 isRunning = false;
+            }
+            else
+            {
+                handleThePlay.doNotify();
             }
         }
         else

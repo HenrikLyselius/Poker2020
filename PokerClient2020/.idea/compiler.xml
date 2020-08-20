@@ -6,8 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="com.lyselius.connection" />
         <module name="com.lyselius.GUI" />
+        <module name="com.lyselius.connection" />
       </profile>
     </annotationProcessing>
   </component>
