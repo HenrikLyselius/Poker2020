@@ -292,7 +292,7 @@ public class Gameplay {
             if(ch.whichHandIsStrongest(ch.getBestFiveCardHand(winners.get(0).getCards()),
                     ch.getBestFiveCardHand(playersInPot.get(i).getCards())) == 2)
             {
-                winners.remove(0);
+                winners.clear();
                 winners.add(playersInPot.get(i));
             }
 

@@ -19,7 +19,6 @@ public class HandleLogin extends Thread{
     private Socket socket;
     private WebConnection webConnection;
     private boolean isRunning = true;
-    private WaitAndNotify waitAndNotify = new WaitAndNotify();
 
 
     public HandleLogin(HandleThePlay handleThePlay, Socket socket)
