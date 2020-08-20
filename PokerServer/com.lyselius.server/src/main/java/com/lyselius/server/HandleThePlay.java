@@ -1,5 +1,6 @@
 package com.lyselius.server;
 
+import com.lyselius.connection.WaitAndNotify;
 import com.lyselius.database.Services;
 import com.lyselius.logic.Gameplay;
 import com.lyselius.logic.Player;
@@ -21,6 +22,7 @@ public class HandleThePlay extends Thread{
     private ArrayBlockingQueue<Player> newPlayers = new ArrayBlockingQueue<Player>(10);
     private ArrayList<Player> playersOnServer = new ArrayList<Player>();
     private int dealerNumber = 0;
+    private WaitAndNotify waitAndNotify = new WaitAndNotify();
 
 
     public HandleThePlay()
@@ -37,9 +39,11 @@ public class HandleThePlay extends Thread{
             // If there are several players on the server, open a table and start a hand.
             if(getPlayersOnServer().size() > 1)
             {
+                System.out.println("Här i if-satsen");
 
                 checkIfPlayersHaveEnoughMoney();
                 checkIfPlayersAreStillConnected();
+                checkIfOnlyOnePlayerLeftAtTable();
 
                 if(playersOnServer.size() > 1)
                 {
@@ -50,20 +54,24 @@ public class HandleThePlay extends Thread{
                     gameplay.setPlayersAtTable(playersOnServer);
                     gameplay.playHand(dealerNumber % playersOnServer.size());
 
-                    checkIfPlayersHaveEnoughMoney();
+                    /*checkIfPlayersHaveEnoughMoney();
                     checkIfPlayersAreStillConnected();
-                    checkIfOnlyOnePlayerLeftAtTable();
+                    checkIfOnlyOnePlayerLeftAtTable();*/
                 }
             }
+            else
+            {
+                waitAndNotify.doWait();
+            }
 
-            try { Thread.sleep(100); }
-            catch(InterruptedException e) {}
         }
     }
 
 
 
     private void checkIfNewPlayersHaveJoined() {
+
+        System.out.println("Här i NewPlayersHaveJoined");
 
         while(newPlayers.size() > 0)
         {
@@ -151,6 +159,7 @@ public class HandleThePlay extends Thread{
     public void addNewPlayer(Player player)
     {
         newPlayers.add(player);
+        waitAndNotify.doNotify();
     }
 
     public synchronized ArrayList<Player> getPlayersOnServer()

@@ -1,5 +1,6 @@
 package com.lyselius.server;
 
+import com.lyselius.connection.WaitAndNotify;
 import com.lyselius.connection.WebConnection;
 import com.lyselius.database.Services;
 import com.lyselius.logic.Player;
@@ -19,6 +20,7 @@ public class HandleLogin extends Thread{
     private int number;
     private WebConnection webConnection;
     private boolean isRunning = true;
+    private WaitAndNotify waitAndNotify = new WaitAndNotify();
 
 
     public HandleLogin(HandleThePlay handleThePlay, Socket socket, int number)
@@ -26,6 +28,7 @@ public class HandleLogin extends Thread{
         this.handleThePlay = handleThePlay;
         this.socket = socket;
         this.number = number;
+
     }
 
     public void run()

@@ -20,6 +20,7 @@ public class WebConnection extends Thread{
     private DataOutputStream out = null;
     private Socket socket = null;
     private ArrayList<String> fromClient;
+    private WaitAndNotify waitAndNotify = new WaitAndNotify();
 
 
 
@@ -27,6 +28,7 @@ public class WebConnection extends Thread{
     {
         this.socket = socket;
         fromClient = new ArrayList<String>();
+
 
 
         try
@@ -58,14 +60,16 @@ public class WebConnection extends Thread{
             {
                 string = in.readUTF();
                 changeFromClient(string);
-                System.out.println(string);
+                //waitAndNotify.doNotify();
+                //System.out.println(string);
             }
             catch(IOException i)
             {
                 System.out.println(i);
+                changeFromClient("connectionFail");
+                closeConnection();
             }
-            try { Thread.sleep(500); }
-            catch(InterruptedException e) {}
+
         }
     }
 
@@ -123,7 +127,7 @@ public class WebConnection extends Thread{
      * @return The first string in the fromClient list.
      */
 
-    public String getFromClientLog()
+   /* public String getFromClientLog()
     {
         while(true)
         {
@@ -140,6 +144,25 @@ public class WebConnection extends Thread{
                 try { Thread.sleep(500); }
                 catch(InterruptedException e) {}
             }
+        }
+    }*/
+
+
+
+    public String getFromClientLog()
+    {
+        while(true)
+        {
+            if(!fromClient.isEmpty())
+            {
+                String string = fromClient.get(0);
+                changeFromClient("remove");
+
+                System.out.println(string);
+                return string;
+            }
+
+            waitAndNotify.doWait();
         }
     }
 
@@ -164,7 +187,9 @@ public class WebConnection extends Thread{
         else
         {
             fromClient.add(string);
+            waitAndNotify.doNotify();
         }
     }
+
 
 }
