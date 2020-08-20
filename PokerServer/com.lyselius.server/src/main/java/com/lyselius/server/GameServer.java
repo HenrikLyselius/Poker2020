@@ -14,7 +14,6 @@ import java.net.Socket;
 
 public class GameServer {
 
-    private int 			number	 = 1;
     private Socket          socket   = null;
     private ServerSocket    server   = null;
     private HandleThePlay handleThePlay = new HandleThePlay();
@@ -48,9 +47,8 @@ public class GameServer {
                 socket = server.accept();
                 System.out.println("Client accepted");
 
-                HandleLogin handleLogin = new HandleLogin(handleThePlay, socket, number);
+                HandleLogin handleLogin = new HandleLogin(handleThePlay, socket);
                 handleLogin.start();
-                number++;
             }
             catch(Exception e)
             {

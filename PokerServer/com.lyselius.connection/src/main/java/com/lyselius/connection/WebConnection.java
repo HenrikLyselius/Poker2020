@@ -7,7 +7,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 
 /**
- * Objects of this class are supposed to be given to playerobjects, to simplify the code when
+ * Objects of this class are supposed to be given to playerobjects (initially to a handleLogin object), to simplify the code when
  * the server needs to talk to the clients.
  *
  */
@@ -20,6 +20,7 @@ public class WebConnection extends Thread{
     private DataOutputStream out = null;
     private Socket socket = null;
     private ArrayList<String> fromClient;
+    private WaitAndNotify waitAndNotify = new WaitAndNotify();
 
 
 
@@ -27,6 +28,7 @@ public class WebConnection extends Thread{
     {
         this.socket = socket;
         fromClient = new ArrayList<String>();
+
 
 
         try
@@ -40,13 +42,15 @@ public class WebConnection extends Thread{
         }
     }
 
+
+
     /**
-     * Listens to the client, and puts incoming strings in fromClient list.
+     * Listens to the client, and puts incoming strings in the fromClient list.
      */
 
     public void run()
     {
-        //getInputFromPlayer();
+
         String string = "";
 
         // Continuously listen to the client.
@@ -56,36 +60,22 @@ public class WebConnection extends Thread{
             {
                 string = in.readUTF();
                 changeFromClient(string);
-                System.out.println(string);
+                //waitAndNotify.doNotify();
+                //System.out.println(string);
             }
             catch(IOException i)
             {
                 System.out.println(i);
+                changeFromClient("connectionFail");
+                closeConnection();
             }
-            try { Thread.sleep(500); }
-            catch(InterruptedException e) {}
+
         }
     }
 
 
 
-    public void getInputFromPlayer()
-    {
-    	String input = "";
 
-    	try
-    	{
-    		input = in.readUTF();
-            changeFromClient(input);
-            System.out.println(input);
-    	}
-    	catch(IOException e)
-    	{
-    		System.out.println(e);
-    	}
-
-    	getInputFromPlayer();
-   }
 
 
 
@@ -137,7 +127,7 @@ public class WebConnection extends Thread{
      * @return The first string in the fromClient list.
      */
 
-    public String getFromClientLog()
+   /* public String getFromClientLog()
     {
         while(true)
         {
@@ -155,11 +145,30 @@ public class WebConnection extends Thread{
                 catch(InterruptedException e) {}
             }
         }
+    }*/
+
+
+
+    public String getFromClientLog()
+    {
+        while(true)
+        {
+            if(!fromClient.isEmpty())
+            {
+                String string = fromClient.get(0);
+                changeFromClient("remove");
+
+                System.out.println(string);
+                return string;
+            }
+
+            waitAndNotify.doWait();
+        }
     }
 
     /*I now realise, that the construction in this class, that is based on the method below, probably could be
     * achieved much easier with a BlockingQueue object. I have sort of reinvented the wheel here I think, but since the
-    * code is working fine, I will live it like this for now. */
+    * code is working fine, I will leave it like this for now. */
 
 
     /**
@@ -178,7 +187,9 @@ public class WebConnection extends Thread{
         else
         {
             fromClient.add(string);
+            waitAndNotify.doNotify();
         }
     }
+
 
 }
