@@ -100,15 +100,29 @@ public class WebConnection extends Thread{
     public void closeConnection()
     {
         sendToServer("closeConnection");
-        try
-        {
-            in.close();
-            out.close();
-            socket.close();
-        }
+
+        try {in.close();
+            System.out.println("DataInputStream closed.");}
         catch(IOException i)
         {
+            System.out.println("Closing DataInputStream failed.");
             System.out.println(i);
+        }
+
+        try {out.close();
+            System.out.println("DataOutputStream closed.");}
+        catch(IOException e)
+        {
+            System.out.println("Closing DataOutputStream failed.");
+            System.out.println(e);
+        }
+
+        try{socket.close();
+            System.out.println("Socket closed.");}
+        catch(IOException e)
+        {
+            System.out.println("Closing socket failed.");
+            System.out.println(e);
         }
     }
 

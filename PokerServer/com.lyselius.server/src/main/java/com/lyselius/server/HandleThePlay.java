@@ -62,8 +62,6 @@ public class HandleThePlay extends Thread{
 
     private void checkIfNewPlayersHaveJoined() {
 
-        System.out.println("Här i NewPlayersHaveJoined");
-
         while(newPlayers.size() > 0)
         {
             try {playersOnServer.add(newPlayers.take());}

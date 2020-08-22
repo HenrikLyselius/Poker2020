@@ -60,8 +60,6 @@ public class WebConnection extends Thread{
             {
                 string = in.readUTF();
                 changeFromClient(string);
-                //waitAndNotify.doNotify();
-                //System.out.println(string);
             }
             catch(IOException i)
             {
@@ -106,16 +104,28 @@ public class WebConnection extends Thread{
 
     public void closeConnection()
     {
-        try
-        {
-            in.close();
-            out.close();
-            socket.close();
-        }
-
+        try {in.close();
+            System.out.println("DataInputStream closed.");}
         catch(IOException i)
         {
+            System.out.println("Closing DataInputStream failed.");
             System.out.println(i);
+        }
+
+        try {out.close();
+            System.out.println("DataOutputStream closed.");}
+        catch(IOException e)
+        {
+            System.out.println("Closing DataOutputStream failed.");
+            System.out.println(e);
+        }
+
+        try{socket.close();
+            System.out.println("Socket closed.");}
+        catch(IOException e)
+        {
+            System.out.println("Closing socket failed.");
+            System.out.println(e);
         }
     }
 
@@ -158,7 +168,7 @@ public class WebConnection extends Thread{
                 String string = fromClient.get(0);
                 changeFromClient("remove");
 
-                System.out.println(string);
+                //System.out.println(string);
                 return string;
             }
 
@@ -182,7 +192,7 @@ public class WebConnection extends Thread{
         if(string.equals("remove"))
         {
             fromClient.remove(0);
-            System.out.println(string);
+            //System.out.println(string);
         }
         else
         {
