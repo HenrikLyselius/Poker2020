@@ -12,7 +12,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * An object of this class is meant to handle the play on a table from a high level perspective. It monitors the players
- * that are seated at the table at a given moment, and checks if they have enough many to take part in the play.
+ * that are seated at the table at a given moment, and checks if they have enough money to take part in the play.
  * The handling of the actual play is then delegated to a {@link com.lyselius.logic.Gameplay Gameplay object}.
  */
 
