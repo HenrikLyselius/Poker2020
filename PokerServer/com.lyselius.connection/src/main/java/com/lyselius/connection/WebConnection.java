@@ -19,15 +19,16 @@ public class WebConnection extends Thread{
     private DataInputStream  in = null;
     private DataOutputStream out = null;
     private Socket socket = null;
-    private ArrayList<String> fromClient;
-    private WaitAndNotify waitAndNotify = new WaitAndNotify();
+    //private ArrayList<String> fromClient;
+    private ArrayBlockingQueue<String> fromClient;
+    //private WaitAndNotify waitAndNotify = new WaitAndNotify();
 
 
 
     public WebConnection(Socket socket)
     {
         this.socket = socket;
-        fromClient = new ArrayList<String>();
+        fromClient = new ArrayBlockingQueue<String>(60);
 
 
 
@@ -59,12 +60,14 @@ public class WebConnection extends Thread{
             try
             {
                 string = in.readUTF();
-                changeFromClient(string);
+                fromClient.add(string);
+                //changeFromClient(string);
             }
             catch(IOException i)
             {
                 System.out.println(i);
-                changeFromClient("connectionFail");
+                fromClient.add("connectionFail");
+                //changeFromClient("connectionFail");
                 closeConnection();
             }
 
@@ -73,15 +76,10 @@ public class WebConnection extends Thread{
 
 
 
-
-
-
-
     /**
      * Sends and flushes the incoming string to the client.
      * @param string A string that is sent to the client.
      */
-
 
     public void sendToPlayer(String string)
     {
@@ -93,7 +91,8 @@ public class WebConnection extends Thread{
         catch(IOException e)
         {
             System.out.println(e);
-            changeFromClient("connectionFail");
+            fromClient.add("connectionFail");
+            //changeFromClient("connectionFail");
         }
     }
 
@@ -131,37 +130,17 @@ public class WebConnection extends Thread{
 
 
 
+    public String getFromClientLog() {
 
-    /**
-     * Waits until there is a string in the fromClient list. Then clears the string from the list and returns it.
-     * @return The first string in the fromClient list.
-     */
+        String string = "";
 
-   /* public String getFromClientLog()
-    {
-        while(true)
-        {
-            if(!fromClient.isEmpty())
-            {
-                String string = fromClient.get(0);
-                changeFromClient("remove");
+        try { string = fromClient.take(); }
+        catch (InterruptedException e) { }
 
-                System.out.println(string);
-                return string;
-            }
-            else
-            {
-                try { Thread.sleep(500); }
-                catch(InterruptedException e) {}
-            }
-        }
-    }*/
+        return string;
+    }
 
-
-
-    public String getFromClientLog()
-    {
-        while(true)
+      /*  while(true)
         {
             if(!fromClient.isEmpty())
             {
@@ -173,21 +152,12 @@ public class WebConnection extends Thread{
             }
 
             waitAndNotify.doWait();
-        }
-    }
-
-    /*I now realise, that the construction in this class, that is based on the method below, probably could be
-    * achieved much easier with a BlockingQueue object. I have sort of reinvented the wheel here I think, but since the
-    * code is working fine, I will leave it like this for now. */
+        }*/
 
 
-    /**
-     * Method for both adding to, and removing from, the fromClient list. If the incoming string is
-     * "remove", the first string in the list is removed. Otherwise the incoming string is added to
-     * the list. The method is synchronized to avoid any potential race conditions.
-     * @param string The string to be added, or the signal to remove the first string in fromServer.
-     */
-    public synchronized void changeFromClient(String string)
+
+
+  /*      public synchronized void changeFromClient(String string)
     {
         if(string.equals("remove"))
         {
@@ -199,7 +169,8 @@ public class WebConnection extends Thread{
             fromClient.add(string);
             waitAndNotify.doNotify();
         }
-    }
+    }*/
+
 
 
 }

@@ -23,6 +23,7 @@ public class HandleThePlay extends Thread{
     private ArrayList<Player> playersOnServer = new ArrayList<Player>();
     private int dealerNumber = 0;
     private WaitAndNotify waitAndNotify = new WaitAndNotify();
+    private Services services = Services.getInstance();
 
 
     public HandleThePlay()
@@ -50,10 +51,12 @@ public class HandleThePlay extends Thread{
 
                 gameplay.setPlayersAtTable(playersOnServer);
                 gameplay.playHand(dealerNumber % playersOnServer.size());
+                updatePlayersInDatabase();
             }
             else
             {
                 waitAndNotify.doWait();
+                System.out.println("Vaknat.");
             }
         }
     }
@@ -87,7 +90,7 @@ public class HandleThePlay extends Thread{
             {
                 player.getWebConnection().closeConnection();
                 it.remove();
-                Services.updateInDatabase(player);
+                services.updateInDatabase(player, true);
             }
         }
 
@@ -105,7 +108,7 @@ public class HandleThePlay extends Thread{
             if(player.getCash() <= 1)
             {
                 player.getWebConnection().sendToPlayer("noMoney");
-                Services.updateInDatabase(player);
+                services.updateInDatabase(player, true);
                 it.remove();
 
             }
@@ -140,17 +143,25 @@ public class HandleThePlay extends Thread{
 
 
 
-    /**
-     * Returns a list with the players that are logged in on the server.
-     * @return An ArrayList of Player objects.
-     */
+    private void updatePlayersInDatabase()
+    {
+        playersOnServer.stream()
+                .forEach(player -> services.updateInDatabase(player, true));
+    }
+
+
 
     public void addNewPlayer(Player player)
     {
+        System.out.println("Här i addNewPlayer.");
         newPlayers.add(player);
         doNotify();
     }
 
+    /**
+     * Returns a list with the players that are logged in on the server.
+     * @return An ArrayList of Player objects.
+     */
     public synchronized ArrayList<Player> getPlayersOnServer()
     {
         return playersOnServer;

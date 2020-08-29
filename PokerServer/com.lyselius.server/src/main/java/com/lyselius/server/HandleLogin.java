@@ -6,6 +6,7 @@ import com.lyselius.database.Services;
 import com.lyselius.logic.Player;
 
 import java.net.Socket;
+import java.util.Objects;
 
 /**
  * This class is used to create objects that handle the login process of a client. If a client is successfully logged in,
@@ -18,6 +19,7 @@ public class HandleLogin extends Thread{
     private HandleThePlay handleThePlay;
     private Socket socket;
     private WebConnection webConnection;
+    private Services services;
     private boolean isRunning = true;
 
 
@@ -25,6 +27,7 @@ public class HandleLogin extends Thread{
     {
         this.handleThePlay = handleThePlay;
         this.socket = socket;
+        services = Services.getInstance();
     }
 
     public void run()
@@ -63,11 +66,10 @@ public class HandleLogin extends Thread{
 
         System.out.println(username + " " + password);
 
+        Player player = returnPlayerObjectIfUserExistsAndPasswordIsCorrect(username, password);
 
-        if(userExistsAndPasswordIsCorrect(username, password))
+        if(Objects.nonNull(player))
         {
-            Player player = Services.getFromDatabase(username);
-
             if(!handleThePlay.getPlayersOnServer().contains(player))
             {
                 player.setWebConnection(webConnection);
@@ -93,13 +95,26 @@ public class HandleLogin extends Thread{
     }
 
 
-
-
-    private boolean userExistsAndPasswordIsCorrect(String username, String password)
+    private Player returnPlayerObjectIfUserExistsAndPasswordIsCorrect(String username, String password)
     {
-        if(Services.getFromDatabase(username) != null)
+        Player player = services.getFromDatabase(username);
+
+        if(player != null)
         {
-            Player player = Services.getFromDatabase(username);
+            if(player.getPassword().equals(password))
+            {
+                return player;
+            }
+        }
+
+        return null;
+    }
+
+  /*  private boolean userExistsAndPasswordIsCorrect(String username, String password)
+    {
+        if(services.getFromDatabase(username) != null)
+        {
+            Player player = services.getFromDatabase(username);
 
             if(player.getPassword().equals(password))
             {
@@ -108,7 +123,7 @@ public class HandleLogin extends Thread{
         }
 
         return false;
-    }
+    }*/
 
 
 
@@ -127,7 +142,7 @@ public class HandleLogin extends Thread{
             Player player = new Player(username, password);
             player.setCash(100);
 
-            Services.putInDatabase(player);
+            services.putInDatabase(player);
 
             webConnection.sendToPlayer("loginMessage");
             webConnection.sendToPlayer("newUserCreated");
@@ -138,7 +153,7 @@ public class HandleLogin extends Thread{
     private boolean userAlreadyExists(String username)
     {
 
-        if(Services.getFromDatabase(username) != null)
+        if(services.getFromDatabase(username) != null)
         {
             return true;
 

@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Objects of this class are used to simplify the exchange of information between the client
@@ -14,7 +15,8 @@ import java.util.ArrayList;
 
 public class WebConnection extends Thread{
 
-    private ArrayList<String> fromServer;
+    private ArrayBlockingQueue<String> fromServer = new ArrayBlockingQueue<String>(60);
+    // private ArrayList<String> fromServer;
     private Socket socket;
     private DataOutputStream out;
     private DataInputStream in;
@@ -31,7 +33,7 @@ public class WebConnection extends Thread{
             out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            fromServer = new ArrayList<String>();
+            //fromServer = new ArrayList<String>();
         }
 
         catch(UnknownHostException u)
@@ -62,7 +64,8 @@ public class WebConnection extends Thread{
             try
             {
                 string = in.readUTF();
-                changeFromServer(string);
+                fromServer.add(string);
+                //changeFromServer(string);
             }
             catch(IOException i)
             {
@@ -91,6 +94,17 @@ public class WebConnection extends Thread{
     }
 
 
+
+
+    public String getFromServer()
+    {
+        String string = "";
+
+        try{ fromServer.take(); }
+        catch(InterruptedException e) { }
+
+        return string;
+    }
 
 
     /**
@@ -132,7 +146,7 @@ public class WebConnection extends Thread{
      * @return The first string in the fromServer list.
      */
 
-    public String getFromServerLog()
+  /*  public String getFromServerLog()
     {
         while(true)
         {
@@ -151,17 +165,14 @@ public class WebConnection extends Thread{
         }
 
 
-    }
+    }*/
 
 
     /**
      * Returns the ArrayList fromServer.
      * @return The ArrayList fromServer.
      */
-    public ArrayList<String> getFromServer()
-    {
-        return fromServer;
-    }
+
 
 
 
@@ -172,7 +183,9 @@ public class WebConnection extends Thread{
      * @param string The string to be added, or the signal to remove the first string in fromServer.
      */
 
-    public synchronized void changeFromServer(String string)
+
+
+    /*public synchronized void changeFromServer(String string)
     {
 
         if(string.equals("remove"))
@@ -185,6 +198,6 @@ public class WebConnection extends Thread{
             fromServer.add(string);
             //System.out.println("Added " + string + ". Number of items are now " + fromServer.size() + ".");
         }
-    }
+    }*/
 }
 
