@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 
 @Entity
-@Table(name = "poker")
+@Table(name = "player_data")
 
 
 public class Player implements Serializable {
@@ -29,6 +29,9 @@ public class Player implements Serializable {
 
     @Column(name = "password")
     private String password;
+
+    @Column(name ="salt")
+    private String salt;
 
     @Column(name = "cash")
     private int cash;
@@ -51,10 +54,11 @@ public class Player implements Serializable {
 
 
 
-    public Player(String name, String password)
+    public Player(String name, String password, String salt)
     {
         this.username = name;
         this.password = password;
+        this.salt = salt;
         this.cash = 100;
     }
 
@@ -148,6 +152,11 @@ public class Player implements Serializable {
     public String getUsername() {
         return username;
     }
+
+
+
+
+    public String getSalt() { return salt;}
 
 
     /**

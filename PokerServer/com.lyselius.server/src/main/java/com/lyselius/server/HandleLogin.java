@@ -101,7 +101,7 @@ public class HandleLogin extends Thread{
 
         if(player != null)
         {
-            if(player.getPassword().equals(password))
+            if(player.getPassword().equals(services.hashPassword(password, player.getSalt())))
             {
                 return player;
             }
@@ -109,21 +109,6 @@ public class HandleLogin extends Thread{
 
         return null;
     }
-
-  /*  private boolean userExistsAndPasswordIsCorrect(String username, String password)
-    {
-        if(services.getFromDatabase(username) != null)
-        {
-            Player player = services.getFromDatabase(username);
-
-            if(player.getPassword().equals(password))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }*/
 
 
 
@@ -139,7 +124,9 @@ public class HandleLogin extends Thread{
         }
         else
         {
-            Player player = new Player(username, password);
+            String salt = services.getSalt();
+
+            Player player = new Player(username, services.hashPassword(password, salt), salt);
             player.setCash(100);
 
             services.putInDatabase(player);

@@ -9,6 +9,10 @@ import org.hibernate.cfg.Configuration;
 import org.w3c.dom.Document;
 import javax.naming.Referenceable;
 import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -114,7 +118,32 @@ public class Services {
     }
 
 
+    public String hashPassword(String password, String salt)
+    {
+        MessageDigest md = null;
+        try { md = MessageDigest.getInstance("SHA-256"); }
+        catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
 
+        md.update(salt.getBytes());
+        byte[] bytes = md.digest(password.getBytes());
+
+        return encodeHexString(bytes);
+
+    }
+
+    public String getSalt()
+    {
+        SecureRandom sr = null;
+
+        try { sr = SecureRandom.getInstance("SHA1PRNG", "SUN"); }
+        catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
+        catch (NoSuchProviderException e) { e.printStackTrace(); }
+
+        byte[] salt = new byte[32];
+        sr.nextBytes(salt);
+
+        return encodeHexString(salt);
+    }
 
 
     /**
@@ -369,4 +398,22 @@ public class Services {
         backup.clear();
         backupFile.delete();
     }*/
+
+
+    public String encodeHexString(byte[] byteArray) {
+        StringBuffer hexStringBuffer = new StringBuffer();
+        for (int i = 0; i < byteArray.length; i++) {
+            hexStringBuffer.append(byteToHex(byteArray[i]));
+        }
+        return hexStringBuffer.toString();
+    }
+
+
+    public String byteToHex(byte num) {
+        char[] hexDigits = new char[2];
+        hexDigits[0] = Character.forDigit((num >> 4) & 0xF, 16);
+        hexDigits[1] = Character.forDigit((num & 0xF), 16);
+        return new String(hexDigits);
+    }
+
 }
