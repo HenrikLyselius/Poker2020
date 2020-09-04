@@ -4,6 +4,7 @@ package com.lyselius.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.*;
 
 
 /**
@@ -17,22 +18,33 @@ public class GameServer {
     private Socket          socket   = null;
     private ServerSocket    server   = null;
     private HandleThePlay handleThePlay = new HandleThePlay();
+    public static final Logger logger = Logger.getLogger(GameServer.class.getName());
 
 
 
     public GameServer(int port)
     {
+        Handler fileHandler = null;
+        try { fileHandler = new FileHandler("./logs/" + logger.getName() + ".log"); }
+        catch (IOException e) { e.printStackTrace(); }
+        logger.addHandler(fileHandler);
+
+
         // Starts server and waits for a connection
         try
         {
             server = new ServerSocket(port);
-            System.out.println("Server started");
+            logger.log(Level.INFO, "Server started");
+            logger.log(Level.INFO, "Waiting for a client ...");
 
-            System.out.println("Waiting for a client ...");
+
+            /*System.out.println("Server started");
+
+            System.out.println("Waiting for a client ...");*/
         }
         catch(IOException i)
         {
-            System.out.println(i);
+            logger.log(Level.SEVERE, "IOException", i);
         }
 
         handleThePlay.start();
@@ -45,15 +57,14 @@ public class GameServer {
             try
             {
                 socket = server.accept();
-                System.out.println("Client accepted");
+                logger.log(Level.INFO, "Client accepted");
 
                 HandleLogin handleLogin = new HandleLogin(handleThePlay, socket);
                 handleLogin.start();
             }
             catch(Exception e)
             {
-                e.printStackTrace();
-                System.out.println("Connection Error");
+                logger.log(Level.SEVERE, "Connection Error", e);
             }
         }
     }

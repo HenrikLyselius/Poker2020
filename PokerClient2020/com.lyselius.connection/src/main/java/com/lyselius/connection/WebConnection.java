@@ -141,6 +141,13 @@ public class WebConnection extends Thread{
     }
 
 
+
+
+    public boolean serverLogIsEmpty()
+    {
+        return fromServer.isEmpty();
+    }
+
     /**
      * Returns the first string in the ArrayList fromServer.
      * @return The first string in the fromServer list.

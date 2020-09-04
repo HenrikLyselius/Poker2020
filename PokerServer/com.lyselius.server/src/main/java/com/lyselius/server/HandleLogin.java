@@ -88,8 +88,17 @@ public class HandleLogin extends Thread{
         }
         else
         {
-            webConnection.sendToPlayer("loginMessage");
-            webConnection.sendToPlayer("incorrectLogin");
+            if(services.dataBaseError())
+            {
+                webConnection.sendToPlayer("loginMessage");
+                webConnection.sendToPlayer("databaseError");
+            }
+            else
+            {
+                webConnection.sendToPlayer("loginMessage");
+                webConnection.sendToPlayer("incorrectLogin");
+            }
+
         }
 
     }

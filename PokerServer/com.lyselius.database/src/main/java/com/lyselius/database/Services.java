@@ -31,27 +31,24 @@ public class Services {
     private static volatile Services instance = null;
     private boolean databaseError = false;
     private boolean databaseIsUpToDate = false;
-    private ObjectOutputStream outBackupActive;
-    private ObjectOutputStream outBackupLoggedOut;
-    private File backupFileActivePlayers = new File("com.lyselius.database/src/main/resources/backupFileActivePlayers.txt");
-    private File backupFileLoggedOutPlayers = new File ("com.lyselius.database/src/resources/backupFileLoggedOutPlayers.txt");
+    private BackupDatabase backUpDB = new BackupDatabase();
+    private int counter = 0;
+    /*private ObjectOutputStream outBackupActive;
+    private ObjectOutputStream outBackupLoggedOut;*/
+  /*  private File backupFileActivePlayers = new File("com.lyselius.database/src/main/resources/backupFileActivePlayers.txt");
+    private File backupFileLoggedOutPlayers = new File ("com.lyselius.database/src/main/resources/backupFileLoggedOutPlayers.txt");*/
+
+
 
 
     private Services()
     {
-        // If the database was out of sync, i.e. the database was offline for some time before the server was turned off,
-        // there will be data written to file as a backup that should be transfered to the database before any other
-        // operations take place.
-        readInBackedUpDataToDatabase();
-
-        try
+        if(backUpDB.backUpFileLoggedOutPlayersExists())
         {
-            outBackupActive = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(backupFileActivePlayers)));
-            outBackupLoggedOut = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(backupFileLoggedOutPlayers)));
+            readInBackedUpData();
         }
-        catch (FileNotFoundException e) {e.printStackTrace();}
-        catch (IOException e) {e.printStackTrace();}
     }
+
 
 
 
@@ -74,6 +71,29 @@ public class Services {
 
 
 
+
+
+
+    private void readInBackedUpData()
+    {
+        ArrayList<Player> backedUpPlayers = backUpDB.getBackedUpPlayerDataLoggedOutPlayers();
+        ArrayList<Player> backedUpActivePlayers = backUpDB.getBackedUpPlayerDataActivePlayers();
+
+        backedUpPlayers.stream()
+                .forEach(player -> updateInDatabase(player, false));
+
+        backedUpActivePlayers.stream()
+                .forEach(player -> updateInDatabase(player, true));
+
+        if(!databaseError)
+        {
+            backUpDB.clearLoggedOutPlayersBackUp();
+            backUpDB.clearActivePlayersBackUp();
+        }
+    }
+
+
+
     private void loadSessionFactory(){
 
         Configuration configuration = new Configuration();
@@ -87,31 +107,46 @@ public class Services {
 
     private Session getSession() throws HibernateException {
 
+        counter++;
+        System.out.println("Counter är: " + counter);
+
         if(sessionFactory == null)
         {
             loadSessionFactory();
         }
 
         Session session = null;
-        try {
+        try
+        {
+            if(counter >= 4 && counter <= 6)
+            {
+                throw new IllegalArgumentException("This is just for testing purposes. :).");
+            }
+
             session = sessionFactory.openSession();
-        }catch(Throwable t){
+        }
+        catch(Throwable t)
+        {
             System.err.println("Exception while getting session.. ");
             t.printStackTrace();
             databaseError = true;
         }
+
         if(session == null) {
             System.err.println("session is discovered null");
             databaseError = true;
         }
 
+
+
         /*If a session is collected correctly, then the database is obviously up and running. The check below is to see
-        if it is working now, but has been out of service earlier. If that is the case, backed up data should should be
-        transfered to the database before doing any new operations.  */
+        if it has been out of service earlier. If that is the case, backed up data should should be transfered to the
+        database before doing any new operations.  */
+
         if(Objects.nonNull(session) && databaseError)
         {
-            readInBackedUpDataToDatabase();
             databaseError = false;
+            readInBackedUpData();
         }
 
         return session;
@@ -128,8 +163,8 @@ public class Services {
         byte[] bytes = md.digest(password.getBytes());
 
         return encodeHexString(bytes);
-
     }
+
 
     public String getSalt()
     {
@@ -209,7 +244,7 @@ public class Services {
      */
 
 
-    public void updateInDatabase(Player player, boolean active)
+    public void updateInDatabase(Player player, boolean playerIsActive)
     {
         Session session = getSession();
 
@@ -228,180 +263,24 @@ public class Services {
 
         if(databaseError)
         {
-            backupPlayerObject(player, active);
-        }
-
-        backupPlayerObject(player, active);
-
-
-
-
-
-
-        //backupPlayerObject(player);
-    }
-
-
-
-    private void backupPlayerObject(Player player, boolean playerIsActive)
-    {
-        try
-        {
-            // Write the player object to a file, as a backup, until the database has started working again.
-            if(playerIsActive)
-            {
-                outBackupActive.writeObject(player);
-                outBackupActive.flush();
-            }
-            else
-            {
-                outBackupLoggedOut.writeObject(player);
-                outBackupLoggedOut.flush();
-            }
-
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
+            backUpDB.backupPlayerObject(player, playerIsActive);
         }
     }
 
 
 
-
-
-    private void readInBackedUpDataToDatabase()
+    public void prepareBackUpDB()
     {
-        ObjectInputStream in = null;
-        ArrayList<Player> list = new ArrayList<Player>();
-
-        if(backupFileLoggedOutPlayers.length() != 0)
-        {
-            try
-            {
-                in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(backupFileLoggedOutPlayers)));
-            }
-            catch (IOException e) {e.printStackTrace();}
-
-            try
-            {
-                while(true)
-                {list.add((Player) in.readObject());}
-            }
-            catch(EOFException e){System.out.println("All data was read correctly.");}
-            catch(Exception e){}
-
-            closeStream(in);
-
-            list.stream()
-                    .forEach(player -> updateInDatabase(player, false));
-
-            list.clear();
-            backupFileLoggedOutPlayers.delete();
-        }
-
-        if(backupFileActivePlayers.length() != 0)
-        {
-            try
-            {
-                in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(backupFileActivePlayers)));
-            }
-            catch (IOException e) {e.printStackTrace();}
-
-            try
-            {
-                while(true)
-                {list.add((Player) in.readObject());}
-            }
-            catch(EOFException e){System.out.println("Allt är inläst.");}
-            catch(Exception e){}
-
-            closeStream(in);
-
-            list.stream()
-                    .forEach(player -> updateInDatabase(player, true));
-
-            backupFileActivePlayers.delete();
-        }
-
-        databaseIsUpToDate = true;
+        backUpDB.clearActivePlayersBackUp();
     }
 
 
 
-    private void closeStream(ObjectInputStream in)
+
+    public String encodeHexString(byte[] byteArray)
     {
-        try
-        {
-            in.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-/*
-    private boolean databaseIsUpToDate()
-    {
-        if(backupFile.length() == 0)
-        {
-            return true;
-        }
-
-        // If the backup file is nonempty, it means the server went down without being in sync with the database,
-        // and that we have to move data from the backup file to the database. No player should be able to log in,
-        // until this is done.
-
-        try
-        {
-            backupIn = new ObjectInputStream(new BufferedInputStream(new FileInputStream(backupFile)));
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            return false;
-        }
-
-        backup.clear();
-
-        try{
-            while(true)
-            {
-                backup.add((Player) backupIn.readObject());
-            }
-        }
-        catch(EOFException e){
-            System.out.println("Everything from the backup file, is now read to the backup list.");
-        }
-        catch(Exception e){ return false;}
-
-        backup.stream()
-                .forEach(player -> updateInDatabase(player));
-
-        if(!databaseError)
-        {
-            clearBackups();
-            return true;
-        }
-
-        return false;
-
-    }
-
-    private void clearBackups()
-    {
-        backup.clear();
-        backupFile.delete();
-    }*/
-
-
-    public String encodeHexString(byte[] byteArray) {
         StringBuffer hexStringBuffer = new StringBuffer();
+
         for (int i = 0; i < byteArray.length; i++) {
             hexStringBuffer.append(byteToHex(byteArray[i]));
         }
@@ -409,11 +288,19 @@ public class Services {
     }
 
 
-    public String byteToHex(byte num) {
+    public String byteToHex(byte num)
+    {
         char[] hexDigits = new char[2];
         hexDigits[0] = Character.forDigit((num >> 4) & 0xF, 16);
         hexDigits[1] = Character.forDigit((num & 0xF), 16);
         return new String(hexDigits);
     }
 
+
+
+
+    public boolean dataBaseError()
+    {
+        return databaseError;
+    }
 }

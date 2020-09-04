@@ -145,8 +145,15 @@ public class HandleThePlay extends Thread{
 
     private void updatePlayersInDatabase()
     {
+        if(services.dataBaseError())
+        {
+            services.prepareBackUpDB();
+        }
+
         playersOnServer.stream()
                 .forEach(player -> services.updateInDatabase(player, true));
+
+
     }
 
 
