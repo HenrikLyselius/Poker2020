@@ -1,14 +1,11 @@
 package com.lyselius.database;
 
 import com.lyselius.logic.Player;
-import org.hibernate.HibernateError;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.w3c.dom.Document;
-import javax.naming.Referenceable;
-import java.io.*;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -33,10 +30,6 @@ public class Services {
     private boolean databaseIsUpToDate = false;
     private BackupDatabase backUpDB = new BackupDatabase();
     private int counter = 0;
-    /*private ObjectOutputStream outBackupActive;
-    private ObjectOutputStream outBackupLoggedOut;*/
-  /*  private File backupFileActivePlayers = new File("com.lyselius.database/src/main/resources/backupFileActivePlayers.txt");
-    private File backupFileLoggedOutPlayers = new File ("com.lyselius.database/src/main/resources/backupFileLoggedOutPlayers.txt");*/
 
 
 
@@ -118,9 +111,10 @@ public class Services {
         Session session = null;
         try
         {
-            if(counter >= 4 && counter <= 6)
+            if(counter >= 10 && counter <= 20)
             {
-                throw new IllegalArgumentException("This is just for testing purposes. :).");
+                throw new IllegalArgumentException("This is just for testing purposes, to make sure the " +
+                        " backup database is working.");
             }
 
             session = sessionFactory.openSession();
@@ -140,8 +134,8 @@ public class Services {
 
 
         /*If a session is collected correctly, then the database is obviously up and running. The check below is to see
-        if it has been out of service earlier. If that is the case, backed up data should should be transfered to the
-        database before doing any new operations.  */
+        if it has been out of service earlier. If that is the case, backed up data should should be transferred from the
+        backup files, to the database before doing any new operations.  */
 
         if(Objects.nonNull(session) && databaseError)
         {
@@ -153,32 +147,6 @@ public class Services {
     }
 
 
-    public String hashPassword(String password, String salt)
-    {
-        MessageDigest md = null;
-        try { md = MessageDigest.getInstance("SHA-256"); }
-        catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
-
-        md.update(salt.getBytes());
-        byte[] bytes = md.digest(password.getBytes());
-
-        return encodeHexString(bytes);
-    }
-
-
-    public String getSalt()
-    {
-        SecureRandom sr = null;
-
-        try { sr = SecureRandom.getInstance("SHA1PRNG", "SUN"); }
-        catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
-        catch (NoSuchProviderException e) { e.printStackTrace(); }
-
-        byte[] salt = new byte[32];
-        sr.nextBytes(salt);
-
-        return encodeHexString(salt);
-    }
 
 
     /**
@@ -273,6 +241,39 @@ public class Services {
     {
         backUpDB.clearActivePlayersBackUp();
     }
+
+
+
+
+
+
+    public String hashPassword(String password, String salt)
+    {
+        MessageDigest md = null;
+        try { md = MessageDigest.getInstance("SHA-256"); }
+        catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
+
+        md.update(salt.getBytes());
+        byte[] bytes = md.digest(password.getBytes());
+
+        return encodeHexString(bytes);
+    }
+
+
+    public String getSalt()
+    {
+        SecureRandom sr = null;
+
+        try { sr = SecureRandom.getInstance("SHA1PRNG", "SUN"); }
+        catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
+        catch (NoSuchProviderException e) { e.printStackTrace(); }
+
+        byte[] salt = new byte[32];
+        sr.nextBytes(salt);
+
+        return encodeHexString(salt);
+    }
+
 
 
 

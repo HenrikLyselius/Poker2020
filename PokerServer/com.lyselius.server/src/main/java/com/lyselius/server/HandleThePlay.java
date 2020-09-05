@@ -90,7 +90,7 @@ public class HandleThePlay extends Thread{
             {
                 player.getWebConnection().closeConnection();
                 it.remove();
-                services.updateInDatabase(player, true);
+                services.updateInDatabase(player, false);
             }
         }
 
