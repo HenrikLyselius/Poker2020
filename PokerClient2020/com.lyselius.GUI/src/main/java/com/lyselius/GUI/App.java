@@ -94,9 +94,9 @@ public class App extends Application {
 
     public void checkServerLog()
     {
-        if(!webConnection.getFromServer().isEmpty())
+        if(!webConnection.serverLogIsEmpty())
         {
-            String string = webConnection.getFromServerLog();
+            String string = webConnection.getFromServer();
 
             switch (string)
             {
@@ -181,6 +181,9 @@ public class App extends Application {
                     timeOutFold();
                     break;
 
+                case "databaseError":
+
+
             }
         }
     }
@@ -200,7 +203,7 @@ public class App extends Application {
     private void login()
     {
         getStage().setScene(lobbyScene);
-        String username = webConnection.getFromServerLog();
+        String username = webConnection.getFromServer();
         gameView.setUsername(username);
     }
 
@@ -226,7 +229,7 @@ public class App extends Application {
 
     public void checkLoginMessages()
     {
-        String string = webConnection.getFromServerLog();
+        String string = webConnection.getFromServer();
 
         if(string.equals("userAlreadyExists"))
         {
@@ -241,6 +244,10 @@ public class App extends Application {
         if(string.equals("incorrectLogin"))
         {
             VH.showIncorrectLogin();
+        }
+        if(string.equals("databaseError"))
+        {
+            VH.showDatabaseError();
         }
 
     }

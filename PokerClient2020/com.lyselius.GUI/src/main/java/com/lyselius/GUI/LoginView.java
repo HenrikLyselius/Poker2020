@@ -39,6 +39,7 @@ public class LoginView {
     private Label newUserCreated = new Label("User is succesfully created, and you have been awarded 100 euro."
             + " Please login to start playing.");
     private Label userNameTakenLabel = new Label("Username already exists.");
+    private Label databaseErrorLabel = new Label("We have some technical problems at the moment, please try again later.");
     private TextField userName = new TextField();
     private PasswordField password = new PasswordField();
     private DoubleProperty fontSize;
@@ -118,6 +119,13 @@ public class LoginView {
         incorrectLoginLabel.setStyle("-fx-font-size: 9em");
         incorrectLoginLabel.setTextFill(Color.web("EF2C2C"));
 
+        databaseErrorLabel.layoutYProperty().bind(logInScene.heightProperty().multiply(0.54));
+        databaseErrorLabel.prefHeightProperty().bind(logInScene.heightProperty().multiply(0.07));
+        databaseErrorLabel.layoutXProperty().bind(logInScene.widthProperty().multiply(0.15));
+        databaseErrorLabel.prefWidthProperty().bind(logInScene.widthProperty().multiply(0.4));
+        databaseErrorLabel.setStyle("-fx-font-size: 9em");
+        databaseErrorLabel.setTextFill(Color.web("EF2C2C"));
+
         passwordLabel.layoutYProperty().bind(logInScene.heightProperty().multiply(0.40));
         passwordLabel.prefHeightProperty().bind(logInScene.heightProperty().multiply(0.04));
         passwordLabel.layoutXProperty().bind(logInScene.widthProperty().multiply(0.35));
@@ -191,6 +199,12 @@ public class LoginView {
     {
         showStartPage();
         root.getChildren().add(incorrectLoginLabel);
+    }
+
+    public void showDatabaseError()
+    {
+        showStartPage();
+        root.getChildren().add(databaseErrorLabel);
     }
 
     public void showSuccesfullLogin()

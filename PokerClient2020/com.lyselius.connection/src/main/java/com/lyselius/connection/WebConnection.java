@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Objects of this class are used to simplify the exchange of information between the client
@@ -14,7 +15,8 @@ import java.util.ArrayList;
 
 public class WebConnection extends Thread{
 
-    private ArrayList<String> fromServer;
+    private ArrayBlockingQueue<String> fromServer = new ArrayBlockingQueue<String>(60);
+    // private ArrayList<String> fromServer;
     private Socket socket;
     private DataOutputStream out;
     private DataInputStream in;
@@ -31,7 +33,7 @@ public class WebConnection extends Thread{
             out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            fromServer = new ArrayList<String>();
+            //fromServer = new ArrayList<String>();
         }
 
         catch(UnknownHostException u)
@@ -48,8 +50,7 @@ public class WebConnection extends Thread{
 
 
     /**
-     * Listens to the server and adds (through calls to the changeFromServer method) incoming
-     * strings to the fromServer list.
+     * Listens to the server and adds incoming strings to the fromServer list.
      */
 
     public void run()
@@ -62,7 +63,8 @@ public class WebConnection extends Thread{
             try
             {
                 string = in.readUTF();
-                changeFromServer(string);
+                fromServer.add(string);
+
             }
             catch(IOException i)
             {
@@ -91,6 +93,17 @@ public class WebConnection extends Thread{
     }
 
 
+
+
+    public String getFromServer()
+    {
+        String string = "";
+
+        try{ string = fromServer.take(); }
+        catch(InterruptedException e) { }
+
+        return string;
+    }
 
 
     /**
@@ -127,64 +140,13 @@ public class WebConnection extends Thread{
     }
 
 
-    /**
-     * Returns the first string in the ArrayList fromServer.
-     * @return The first string in the fromServer list.
-     */
 
-    public String getFromServerLog()
+
+    public boolean serverLogIsEmpty()
     {
-        while(true)
-        {
-            if(fromServer.size() > 0)
-            {
-                String string = fromServer.get(0);
-                changeFromServer("remove");
-
-                return string;
-            }
-            else
-            {
-                try { Thread.sleep(60); }
-                catch(InterruptedException e) {}
-            }
-        }
-
-
+        return fromServer.isEmpty();
     }
 
 
-    /**
-     * Returns the ArrayList fromServer.
-     * @return The ArrayList fromServer.
-     */
-    public ArrayList<String> getFromServer()
-    {
-        return fromServer;
-    }
-
-
-
-    /**
-     * Method for both adding to, and removing from, the fromServer list. If the incoming string is
-     * "remove", the first string in the list is removed. Otherwise the incoming string is added to
-     * the list. The method is synchronized to avoid any potential race conditions.
-     * @param string The string to be added, or the signal to remove the first string in fromServer.
-     */
-
-    public synchronized void changeFromServer(String string)
-    {
-
-        if(string.equals("remove"))
-        {
-            fromServer.remove(0);
-            //System.out.println("Removed one item. Number of items are now " + fromServer.size() + ".");
-        }
-        else
-        {
-            fromServer.add(string);
-            //System.out.println("Added " + string + ". Number of items are now " + fromServer.size() + ".");
-        }
-    }
 }
 

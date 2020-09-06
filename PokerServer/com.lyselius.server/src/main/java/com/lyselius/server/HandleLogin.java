@@ -1,11 +1,14 @@
 package com.lyselius.server;
 
+import com.lyselius.connection.Logging;
 import com.lyselius.connection.WaitAndNotify;
 import com.lyselius.connection.WebConnection;
 import com.lyselius.database.Services;
 import com.lyselius.logic.Player;
 
 import java.net.Socket;
+import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * This class is used to create objects that handle the login process of a client. If a client is successfully logged in,
@@ -18,13 +21,16 @@ public class HandleLogin extends Thread{
     private HandleThePlay handleThePlay;
     private Socket socket;
     private WebConnection webConnection;
+    private Services services;
     private boolean isRunning = true;
+
 
 
     public HandleLogin(HandleThePlay handleThePlay, Socket socket)
     {
         this.handleThePlay = handleThePlay;
         this.socket = socket;
+        services = Services.getInstance();
     }
 
     public void run()
@@ -63,11 +69,10 @@ public class HandleLogin extends Thread{
 
         System.out.println(username + " " + password);
 
+        Player player = returnPlayerObjectIfUserExistsAndPasswordIsCorrect(username, password);
 
-        if(userExistsAndPasswordIsCorrect(username, password))
+        if(Objects.nonNull(player))
         {
-            Player player = Services.getFromDatabase(username);
-
             if(!handleThePlay.getPlayersOnServer().contains(player))
             {
                 player.setWebConnection(webConnection);
@@ -86,28 +91,35 @@ public class HandleLogin extends Thread{
         }
         else
         {
-            webConnection.sendToPlayer("loginMessage");
-            webConnection.sendToPlayer("incorrectLogin");
+            if(services.dataBaseError())
+            {
+                webConnection.sendToPlayer("loginMessage");
+                webConnection.sendToPlayer("databaseError");
+            }
+            else
+            {
+                webConnection.sendToPlayer("loginMessage");
+                webConnection.sendToPlayer("incorrectLogin");
+            }
+
         }
 
     }
 
 
-
-
-    private boolean userExistsAndPasswordIsCorrect(String username, String password)
+    private Player returnPlayerObjectIfUserExistsAndPasswordIsCorrect(String username, String password)
     {
-        if(Services.getFromDatabase(username) != null)
-        {
-            Player player = Services.getFromDatabase(username);
+        Player player = services.getFromDatabase(username);
 
-            if(player.getPassword().equals(password))
+        if(player != null)
+        {
+            if(player.getPassword().equals(services.hashPassword(password, player.getSalt())))
             {
-                return true;
+                return player;
             }
         }
 
-        return false;
+        return null;
     }
 
 
@@ -124,10 +136,12 @@ public class HandleLogin extends Thread{
         }
         else
         {
-            Player player = new Player(username, password);
+            String salt = services.getSalt();
+
+            Player player = new Player(username, services.hashPassword(password, salt), salt);
             player.setCash(100);
 
-            Services.putInDatabase(player);
+            services.putInDatabase(player);
 
             webConnection.sendToPlayer("loginMessage");
             webConnection.sendToPlayer("newUserCreated");
@@ -138,7 +152,7 @@ public class HandleLogin extends Thread{
     private boolean userAlreadyExists(String username)
     {
 
-        if(Services.getFromDatabase(username) != null)
+        if(services.getFromDatabase(username) != null)
         {
             return true;
 

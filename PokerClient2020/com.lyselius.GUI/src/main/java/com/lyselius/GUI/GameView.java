@@ -138,8 +138,8 @@ public class GameView {
 
     public void updatePlayer()
     {
-        String username = webConnection.getFromServerLog();
-        String update = webConnection.getFromServerLog();
+        String username = webConnection.getFromServer();
+        String update = webConnection.getFromServer();
 
         int index = getIndexOfPlayer(username);
 
@@ -150,7 +150,7 @@ public class GameView {
 
         if(update.equals("cash"))
         {
-            playerBoxes.get(index).setCash(webConnection.getFromServerLog());
+            playerBoxes.get(index).setCash(webConnection.getFromServer());
         }
 
         if(update.equals("showCards"))
@@ -166,7 +166,7 @@ public class GameView {
 
     public void setPlayerInfo()
     {
-        int numberOfPlayers = Integer.parseInt(webConnection.getFromServerLog());
+        int numberOfPlayers = Integer.parseInt(webConnection.getFromServer());
 
         for(int i = 0; i < numberOfPlayers; i++)
         {
@@ -195,17 +195,17 @@ public class GameView {
 
     private void setPlayerInfoHelp(int i)
     {
-        playerBoxes.get(i).setUsername(webConnection.getFromServerLog());
-        playerBoxes.get(i).setCash(webConnection.getFromServerLog());
+        playerBoxes.get(i).setUsername(webConnection.getFromServer());
+        playerBoxes.get(i).setCash(webConnection.getFromServer());
 
-        String string1 = webConnection.getFromServerLog();
+        String string1 = webConnection.getFromServer();
         //ImageView card1 = new ImageView(new Image("/images/" + string1 + ".png"));
         ImageView card1 = getImageView(string1);
         card1.fitHeightProperty().bind(scene.heightProperty().multiply(0.15));
         card1.setPreserveRatio(true);
         playerBoxes.get(i).setCard1(card1);
 
-        String string2 = webConnection.getFromServerLog();
+        String string2 = webConnection.getFromServer();
         //ImageView card2 = new ImageView(new Image("/images/" + string2 + ".png"));
         ImageView card2 = getImageView(string2);
         card2.fitHeightProperty().bind(scene.heightProperty().multiply(0.15));
@@ -250,8 +250,8 @@ public class GameView {
 
     public void setBet()
     {
-        String bettingPlayer = webConnection.getFromServerLog();
-        String betAmount = webConnection.getFromServerLog();
+        String bettingPlayer = webConnection.getFromServer();
+        String betAmount = webConnection.getFromServer();
 
         int index = getIndexOfPlayer(bettingPlayer);
 
@@ -277,12 +277,12 @@ public class GameView {
 
     public void changeActivePlayer()
     {
-        String username = webConnection.getFromServerLog();
+        String username = webConnection.getFromServer();
         int index = getIndexOfPlayer(username);
 
         playerBoxes.get(index).changeBackground();
 
-//		String change = webConnection.getFromServerLog();
+//		String change = webConnection.getFromServer();
 //
 //		if(change.equals("setActiveBackground"))
 //		{
@@ -536,7 +536,7 @@ public class GameView {
 
     public void updatePot()
     {
-        pot.setText("Pot: " + webConnection.getFromServerLog() + "€");
+        pot.setText("Pot: " + webConnection.getFromServer() + "€");
     }
 
 
@@ -546,8 +546,8 @@ public class GameView {
 
     public void updateBetLimits()
     {
-        slider.setMin(Double.parseDouble(webConnection.getFromServerLog()));
-        slider.setMax(Double.parseDouble(webConnection.getFromServerLog()));
+        slider.setMin(Double.parseDouble(webConnection.getFromServer()));
+        slider.setMax(Double.parseDouble(webConnection.getFromServer()));
     }
 
 
@@ -557,7 +557,7 @@ public class GameView {
 
     public void changeWinnerMessage()
     {
-        winner.setText(webConnection.getFromServerLog());
+        winner.setText(webConnection.getFromServer());
     }
 
 
@@ -566,7 +566,7 @@ public class GameView {
      */
     public void changeMenu()
     {
-        String whichMenu = webConnection.getFromServerLog();
+        String whichMenu = webConnection.getFromServer();
 
         switch(whichMenu)
         {
@@ -598,17 +598,17 @@ public class GameView {
 
     public void showFlop()
     {
-        String card1 = webConnection.getFromServerLog();
+        String card1 = webConnection.getFromServer();
         ImageView flop1 = new ImageView(new Image(card1 + ".png"));
         flop1.fitHeightProperty().bind(scene.heightProperty().multiply(0.15));
         flop1.setPreserveRatio(true);
 
-        String card2 = webConnection.getFromServerLog();
+        String card2 = webConnection.getFromServer();
         ImageView flop2 = new ImageView(new Image(card2 + ".png"));
         flop2.fitHeightProperty().bind(scene.heightProperty().multiply(0.15));
         flop2.setPreserveRatio(true);
 
-        String card3 = webConnection.getFromServerLog();
+        String card3 = webConnection.getFromServer();
         ImageView flop3 = new ImageView(new Image(card3 + ".png"));
         flop3.fitHeightProperty().bind(scene.heightProperty().multiply(0.15));
         flop3.setPreserveRatio(true);
@@ -623,7 +623,7 @@ public class GameView {
 
     public void showTurn()
     {
-        String card = webConnection.getFromServerLog();
+        String card = webConnection.getFromServer();
         ImageView turnCard = new ImageView(new Image(card + ".png"));
         turnCard.fitHeightProperty().bind(scene.heightProperty().multiply(0.15));
         turnCard.setPreserveRatio(true);
@@ -638,7 +638,7 @@ public class GameView {
 
     public void showRiver()
     {
-        String card = webConnection.getFromServerLog();
+        String card = webConnection.getFromServer();
         ImageView riverCard = new ImageView(new Image(card + ".png"));
         riverCard.fitHeightProperty().bind(scene.heightProperty().multiply(0.15));
         riverCard.setPreserveRatio(true);

@@ -3,6 +3,7 @@ package com.lyselius.logic;
 import com.lyselius.connection.WebConnection;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 
@@ -16,10 +17,10 @@ import java.util.ArrayList;
 
 
 @Entity
-@Table(name = "poker")
+@Table(name = "player_data")
 
 
-public class Player {
+public class Player implements Serializable {
 
 
     @Id
@@ -29,31 +30,35 @@ public class Player {
     @Column(name = "password")
     private String password;
 
+    @Column(name ="salt")
+    private String salt;
+
     @Column(name = "cash")
     private int cash;
 
     @Transient
-    private int actualBet = 0;
+    private transient int actualBet = 0;
     @Transient
-    private int totalAmountPutInPot = 0;
+    private transient int totalAmountPutInPot = 0;
     @Transient
-    private boolean stillInPot = true;
+    private transient boolean stillInPot = true;
     @Transient
-    private boolean isAllIn = false;
+    private transient boolean isAllIn = false;
     @Transient
-    private ArrayList<Card> cards = new ArrayList<Card>();
+    private transient ArrayList<Card> cards = new ArrayList<Card>();
     @Transient
-    private WebConnection webConnection;
+    private transient WebConnection webConnection;
     @Transient
-    private boolean connected = true;
+    private transient boolean connected = true;
 
 
 
 
-    public Player(String name, String password)
+    public Player(String name, String password, String salt)
     {
         this.username = name;
         this.password = password;
+        this.salt = salt;
         this.cash = 100;
     }
 
@@ -147,6 +152,11 @@ public class Player {
     public String getUsername() {
         return username;
     }
+
+
+
+
+    public String getSalt() { return salt;}
 
 
     /**

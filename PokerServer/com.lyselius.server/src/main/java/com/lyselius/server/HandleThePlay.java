@@ -1,5 +1,6 @@
 package com.lyselius.server;
 
+import com.lyselius.connection.Logging;
 import com.lyselius.connection.WaitAndNotify;
 import com.lyselius.database.Services;
 import com.lyselius.logic.Gameplay;
@@ -8,6 +9,8 @@ import com.lyselius.logic.Player;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -23,6 +26,8 @@ public class HandleThePlay extends Thread{
     private ArrayList<Player> playersOnServer = new ArrayList<Player>();
     private int dealerNumber = 0;
     private WaitAndNotify waitAndNotify = new WaitAndNotify();
+    private Services services = Services.getInstance();
+    private static final Logger logger = Logging.getLogger(HandleThePlay.class.getName());
 
 
     public HandleThePlay()
@@ -50,6 +55,7 @@ public class HandleThePlay extends Thread{
 
                 gameplay.setPlayersAtTable(playersOnServer);
                 gameplay.playHand(dealerNumber % playersOnServer.size());
+                updatePlayersInDatabase();
             }
             else
             {
@@ -87,7 +93,8 @@ public class HandleThePlay extends Thread{
             {
                 player.getWebConnection().closeConnection();
                 it.remove();
-                Services.updateInDatabase(player);
+                logger.log(Level.INFO, "Player " + player.getUsername() + " has logged out, and is removed from the table.");
+                services.updateInDatabase(player, false);
             }
         }
 
@@ -105,8 +112,9 @@ public class HandleThePlay extends Thread{
             if(player.getCash() <= 1)
             {
                 player.getWebConnection().sendToPlayer("noMoney");
-                Services.updateInDatabase(player);
+                services.updateInDatabase(player, true);
                 it.remove();
+                logger.log(Level.INFO, "Player " + player.getUsername() + " has no money left, and is removed from the table.");
 
             }
         }
@@ -140,17 +148,32 @@ public class HandleThePlay extends Thread{
 
 
 
-    /**
-     * Returns a list with the players that are logged in on the server.
-     * @return An ArrayList of Player objects.
-     */
+    private void updatePlayersInDatabase()
+    {
+        if(services.dataBaseError())
+        {
+            services.prepareBackUpDB();
+        }
+
+        playersOnServer.stream()
+                .forEach(player -> services.updateInDatabase(player, true));
+
+
+    }
+
+
 
     public void addNewPlayer(Player player)
     {
         newPlayers.add(player);
+        logger.log(Level.INFO, "Player " + player.getUsername() + " has logged in, and will be added to a table.");
         doNotify();
     }
 
+    /**
+     * Returns a list with the players that are logged in on the server.
+     * @return An ArrayList of Player objects.
+     */
     public synchronized ArrayList<Player> getPlayersOnServer()
     {
         return playersOnServer;
