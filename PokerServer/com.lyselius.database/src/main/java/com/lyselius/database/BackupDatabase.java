@@ -1,6 +1,7 @@
 package com.lyselius.database;
 
 
+import com.lyselius.connection.Logging;
 import com.lyselius.logic.Player;
 
 import java.io.*;
@@ -19,10 +20,10 @@ public class BackupDatabase {
     private ObjectOutputStream outBackupLoggedOut;
     private File backupFileActivePlayers = new File("com.lyselius.database/src/main/resources/backupFileActivePlayers.txt");
     private File backupFileLoggedOutPlayers = new File ("com.lyselius.database/src/main/resources/backupFileLoggedOutPlayers.txt");
-    public static final Logger logger = Logger.getLogger(BackupDatabase.class.getName());
+    private static final Logger logger = Logging.getLogger(BackupDatabase.class.getName());
 
 
-    public BackupDatabase()
+    protected BackupDatabase()
     {
         openOutputStreamActivePlayers();
         openOutputStreamLoggedOutPlayers();
@@ -37,8 +38,16 @@ public class BackupDatabase {
         {
             outBackupActive = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(backupFileActivePlayers)));
         }
-        catch (FileNotFoundException e) {e.printStackTrace();}
-        catch (IOException e) {e.printStackTrace();}
+        catch (FileNotFoundException e)
+        {
+            logger.log(Level.SEVERE, "FileNotFound", e);
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            logger.log(Level.SEVERE, "IOException", e);
+            e.printStackTrace();
+        }
     }
 
 
@@ -48,8 +57,16 @@ public class BackupDatabase {
         {
             outBackupLoggedOut = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(backupFileLoggedOutPlayers)));
         }
-        catch (FileNotFoundException e) {e.printStackTrace();}
-        catch (IOException e) {e.printStackTrace();}
+        catch (FileNotFoundException e)
+        {
+            logger.log(Level.SEVERE, "FileNotFound", e);
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            logger.log(Level.SEVERE, "IOException", e);
+            e.printStackTrace();
+        }
     }
 
 
@@ -62,17 +79,19 @@ public class BackupDatabase {
             {
                 outBackupActive.writeObject(player);
                 outBackupActive.flush();
+                logger.log(Level.INFO, "Player " + player.getUsername() + " is written to backup file.");
             }
             else
             {
                 outBackupLoggedOut.writeObject(player);
                 outBackupLoggedOut.flush();
+                logger.log(Level.INFO, "Player " + player.getUsername() + " is written to backup file for logged out players.");
             }
 
-            logger.log(Level.INFO, "Player " + player.getUsername() + " is written to backup database.");
         }
         catch (IOException e)
         {
+            logger.log(Level.SEVERE, "IOException, Player object could not be written to back up file.", e);
             e.printStackTrace();
         }
     }
@@ -110,6 +129,7 @@ public class BackupDatabase {
             }
             catch (IOException e)
             {
+                logger.log(Level.SEVERE, "Input stream from back up file could not be opened.", e);
                 e.printStackTrace();
             }
 
@@ -120,8 +140,8 @@ public class BackupDatabase {
                     list.add((Player) in.readObject());
                 }
             }
-            catch (EOFException e) { System.out.println("All data was read correctly.");}
-            catch (Exception e) { }
+            catch (EOFException e) { logger.log(Level.INFO, "All data was read correctly.");}
+            catch (Exception e) {logger.log(Level.SEVERE, "Player objects could not be read from back up file.", e); }
 
             closeStream(in);
         }
@@ -142,15 +162,19 @@ public class BackupDatabase {
             {
                 in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(backupFileActivePlayers)));
             }
-            catch (IOException e) {e.printStackTrace();}
+            catch (IOException e)
+            {
+                logger.log(Level.SEVERE, "Input stream from from back up file could not be opened.", e);
+                e.printStackTrace();
+            }
 
             try
             {
                 while(true)
                 {list.add((Player) in.readObject());}
             }
-            catch(EOFException e){System.out.println("All data was read correctly.");}
-            catch(Exception e){}
+            catch(EOFException e){logger.log(Level.INFO, "All data was read correctly.");}
+            catch(Exception e) {logger.log(Level.SEVERE, "Player objects could not be read from back up file.", e); }
 
             closeStream(in);
         }
@@ -158,7 +182,7 @@ public class BackupDatabase {
         for(Player player : list)
         {
             logger.log(Level.INFO, "Player info for " + player.getUsername() + " has been read from the backup " +
-                "database, and will be transfered to the main database.");
+                "database, and will be transferred to the main database.");
         }
 
         return list;
@@ -180,7 +204,6 @@ public class BackupDatabase {
             e.printStackTrace();
         }
     }
-
 
 
     public boolean backUpFileLoggedOutPlayersExists()

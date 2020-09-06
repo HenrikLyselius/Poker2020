@@ -10,5 +10,6 @@ module com.lyselius.database {
     requires com.lyselius.logic;
     requires java.xml;
     requires java.naming;
+    requires com.lyselius.connection;
     exports com.lyselius.database;
 }

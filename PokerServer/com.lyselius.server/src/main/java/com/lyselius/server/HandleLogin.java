@@ -1,5 +1,6 @@
 package com.lyselius.server;
 
+import com.lyselius.connection.Logging;
 import com.lyselius.connection.WaitAndNotify;
 import com.lyselius.connection.WebConnection;
 import com.lyselius.database.Services;
@@ -7,6 +8,7 @@ import com.lyselius.logic.Player;
 
 import java.net.Socket;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * This class is used to create objects that handle the login process of a client. If a client is successfully logged in,
@@ -21,6 +23,7 @@ public class HandleLogin extends Thread{
     private WebConnection webConnection;
     private Services services;
     private boolean isRunning = true;
+
 
 
     public HandleLogin(HandleThePlay handleThePlay, Socket socket)

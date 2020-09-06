@@ -1,17 +1,23 @@
 package com.lyselius.database;
 
+import com.lyselius.connection.Logging;
 import com.lyselius.logic.Player;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -30,12 +36,14 @@ public class Services {
     private boolean databaseIsUpToDate = false;
     private BackupDatabase backUpDB = new BackupDatabase();
     private int counter = 0;
+    private static final Logger logger = Logging.getLogger(Services.class.getName());
 
 
 
 
     private Services()
     {
+
         if(backUpDB.backUpFileLoggedOutPlayersExists())
         {
             readInBackedUpData();
@@ -121,13 +129,14 @@ public class Services {
         }
         catch(Throwable t)
         {
-            System.err.println("Exception while getting session.. ");
+
+            logger.log(Level.SEVERE, "Exception while getting session.", t);
             t.printStackTrace();
             databaseError = true;
         }
 
         if(session == null) {
-            System.err.println("session is discovered null");
+            logger.log(Level.SEVERE, "Session is discovered null.");
             databaseError = true;
         }
 
@@ -140,6 +149,8 @@ public class Services {
         if(Objects.nonNull(session) && databaseError)
         {
             databaseError = false;
+            logger.log(Level.INFO, "The database is working again, and backed up data will be read from the back" +
+                    " up files.");
             readInBackedUpData();
         }
 
@@ -166,7 +177,12 @@ public class Services {
                 session.save(player);
                 session.getTransaction().commit();
             }
-            catch(Exception e){databaseError = true;}
+            catch(Exception e)
+            {
+                logger.log(Level.SEVERE, "Exception while putting player in database.", e);
+                e.printStackTrace();
+                databaseError = true;
+            }
             finally {session.close();}
         }
     }
@@ -193,6 +209,8 @@ public class Services {
         }
         catch(Exception e)
         {
+            logger.log(Level.SEVERE, "Exception while getting player from database.", e);
+            e.printStackTrace();
             databaseError = true;
             return null;
         }
@@ -225,7 +243,12 @@ public class Services {
                 playerToUpdate.setCash(player.getCash());
                 session.getTransaction().commit();
             }
-            catch(Exception e) {databaseError = true;}
+            catch(Exception e)
+            {
+                logger.log(Level.SEVERE, "Exception while updating player in database.", e);
+                e.printStackTrace();
+                databaseError = true;
+            }
             finally {session.close();}
         }
 

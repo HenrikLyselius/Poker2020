@@ -18,7 +18,7 @@ public class GameServer {
     private Socket          socket   = null;
     private ServerSocket    server   = null;
     private HandleThePlay handleThePlay = new HandleThePlay();
-    public static final Logger logger = Logger.getLogger(GameServer.class.getName());
+    private static final Logger logger = Logger.getLogger(GameServer.class.getName());
 
 
 
