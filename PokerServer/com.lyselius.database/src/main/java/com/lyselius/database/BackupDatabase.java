@@ -25,8 +25,7 @@ public class BackupDatabase {
 
     protected BackupDatabase()
     {
-        openOutputStreamActivePlayers();
-        openOutputStreamLoggedOutPlayers();
+
     }
 
 
@@ -69,6 +68,12 @@ public class BackupDatabase {
         }
     }
 
+
+    public void prepare()
+    {
+        openOutputStreamActivePlayers();
+        openOutputStreamLoggedOutPlayers();
+    }
 
 
     public void backupPlayerObject(Player player, boolean playerIsActive)
@@ -195,14 +200,18 @@ public class BackupDatabase {
 
     private void closeStream(Closeable stream)
     {
-        try
+        if(stream != null)
         {
-            stream.close();
+            try
+            {
+                stream.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+
     }
 
 

@@ -43,11 +43,10 @@ public class Services {
 
     private Services()
     {
-
         if(backUpDB.backUpFileLoggedOutPlayersExists())
-        {
-            readInBackedUpData();
-        }
+            { readInBackedUpData(); }
+        else
+            {backUpDB.prepare();}
     }
 
 
