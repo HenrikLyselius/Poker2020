@@ -2,14 +2,14 @@ package com.lyselius.connection;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
- * Objects of this class are supposed to be given to playerobjects (initially to a handleLogin object), to simplify the code when
- * the server needs to talk to the clients.
- *
+ * Objects of this class are supposed to be given to playerobjects (initially to a handleLogin object), to simplify
+ * the information exchange with the clients.
  */
 
 
@@ -19,9 +19,8 @@ public class WebConnection extends Thread{
     private DataInputStream  in = null;
     private DataOutputStream out = null;
     private Socket socket = null;
-    //private ArrayList<String> fromClient;
     private ArrayBlockingQueue<String> fromClient;
-    //private WaitAndNotify waitAndNotify = new WaitAndNotify();
+    private static final Logger logger = Logging.getLogger(WebConnection.class.getName());
 
 
 
@@ -30,8 +29,6 @@ public class WebConnection extends Thread{
         this.socket = socket;
         fromClient = new ArrayBlockingQueue<String>(60);
 
-
-
         try
         {
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
@@ -39,7 +36,7 @@ public class WebConnection extends Thread{
         }
         catch(IOException i)
         {
-            System.out.println(i);
+            logger.log(Level.SEVERE, "In- and/or outputstream was not opened correctly", i);
         }
     }
 
@@ -61,17 +58,32 @@ public class WebConnection extends Thread{
             {
                 string = in.readUTF();
                 fromClient.add(string);
-                //changeFromClient(string);
             }
             catch(IOException i)
             {
-                System.out.println(i);
+                logger.log(Level.SEVERE, i.getMessage(), i);
                 fromClient.add("connectionFail");
-                //changeFromClient("connectionFail");
                 closeConnection();
             }
-
         }
+    }
+
+
+
+
+    /**
+     * Gets the next string that was sent from the server.
+     */
+
+    public String getFromClientLog() {
+
+        String string = "";
+
+        try { string = fromClient.take(); }
+        catch (InterruptedException e)
+        { logger.log(Level.SEVERE, e.getMessage(), e); }
+
+        return string;
     }
 
 
@@ -90,9 +102,8 @@ public class WebConnection extends Thread{
         }
         catch(IOException e)
         {
-            System.out.println(e);
+            logger.log(Level.SEVERE, e.getMessage(), e);
             fromClient.add("connectionFail");
-            //changeFromClient("connectionFail");
         }
     }
 
@@ -103,74 +114,16 @@ public class WebConnection extends Thread{
 
     public void closeConnection()
     {
-        try {in.close();
-            System.out.println("DataInputStream closed.");}
+        try { in.close(); }
         catch(IOException i)
-        {
-            System.out.println("Closing DataInputStream failed.");
-            System.out.println(i);
-        }
+        { logger.log(Level.WARNING, i.getMessage(), i); }
 
-        try {out.close();
-            System.out.println("DataOutputStream closed.");}
+        try { out.close(); }
         catch(IOException e)
-        {
-            System.out.println("Closing DataOutputStream failed.");
-            System.out.println(e);
-        }
+        { logger.log(Level.WARNING, e.getMessage(), e); }
 
-        try{socket.close();
-            System.out.println("Socket closed.");}
+        try{ socket.close(); }
         catch(IOException e)
-        {
-            System.out.println("Closing socket failed.");
-            System.out.println(e);
-        }
+        { logger.log(Level.WARNING, e.getMessage(), e); }
     }
-
-
-
-    public String getFromClientLog() {
-
-        String string = "";
-
-        try { string = fromClient.take(); }
-        catch (InterruptedException e) { }
-
-        return string;
-    }
-
-      /*  while(true)
-        {
-            if(!fromClient.isEmpty())
-            {
-                String string = fromClient.get(0);
-                changeFromClient("remove");
-
-                //System.out.println(string);
-                return string;
-            }
-
-            waitAndNotify.doWait();
-        }*/
-
-
-
-
-  /*      public synchronized void changeFromClient(String string)
-    {
-        if(string.equals("remove"))
-        {
-            fromClient.remove(0);
-            //System.out.println(string);
-        }
-        else
-        {
-            fromClient.add(string);
-            waitAndNotify.doNotify();
-        }
-    }*/
-
-
-
 }

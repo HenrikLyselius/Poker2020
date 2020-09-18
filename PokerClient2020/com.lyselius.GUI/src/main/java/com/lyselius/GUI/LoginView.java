@@ -122,7 +122,7 @@ public class LoginView {
         databaseErrorLabel.layoutYProperty().bind(logInScene.heightProperty().multiply(0.54));
         databaseErrorLabel.prefHeightProperty().bind(logInScene.heightProperty().multiply(0.07));
         databaseErrorLabel.layoutXProperty().bind(logInScene.widthProperty().multiply(0.15));
-        databaseErrorLabel.prefWidthProperty().bind(logInScene.widthProperty().multiply(0.4));
+        databaseErrorLabel.prefWidthProperty().bind(logInScene.widthProperty().multiply(0.5));
         databaseErrorLabel.setStyle("-fx-font-size: 9em");
         databaseErrorLabel.setTextFill(Color.web("EF2C2C"));
 

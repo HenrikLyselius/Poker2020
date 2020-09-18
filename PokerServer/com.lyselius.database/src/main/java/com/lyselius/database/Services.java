@@ -33,7 +33,6 @@ public class Services {
     private SessionFactory sessionFactory = null;
     private static volatile Services instance = null;
     private boolean databaseError = false;
-    private boolean databaseIsUpToDate = false;
     private BackupDatabase backUpDB = new BackupDatabase();
     private int counter = 0;
     private static final Logger logger = Logging.getLogger(Services.class.getName());
@@ -43,6 +42,8 @@ public class Services {
 
     private Services()
     {
+        // If the back up database was in use, when the server was turned off, there will be data written to file,
+        // that should be moved to the main database before any other operations take place.
         if(backUpDB.backUpFileLoggedOutPlayersExists())
             { readInBackedUpData(); }
         else
@@ -120,7 +121,7 @@ public class Services {
         {
             if(counter >= 10 && counter <= 20)
             {
-                throw new IllegalArgumentException("This is just for testing purposes, to make sure the " +
+                throw new IllegalArgumentException("This is just for testing purposes, to check if the " +
                         " backup database is working.");
             }
 
@@ -128,7 +129,6 @@ public class Services {
         }
         catch(Throwable t)
         {
-
             logger.log(Level.SEVERE, "Exception while getting session.", t);
             t.printStackTrace();
             databaseError = true;
@@ -143,7 +143,7 @@ public class Services {
 
         /*If a session is collected correctly, then the database is obviously up and running. The check below is to see
         if it has been out of service earlier. If that is the case, backed up data should should be transferred from the
-        backup files, to the database before doing any new operations.  */
+        backup files, to the database, before doing any new operations.  */
 
         if(Objects.nonNull(session) && databaseError)
         {
@@ -267,8 +267,6 @@ public class Services {
 
 
 
-
-
     public String hashPassword(String password, String salt)
     {
         MessageDigest md = null;
@@ -280,6 +278,7 @@ public class Services {
 
         return encodeHexString(bytes);
     }
+
 
 
     public String getSalt()
@@ -298,13 +297,12 @@ public class Services {
 
 
 
-
-
     public String encodeHexString(byte[] byteArray)
     {
         StringBuffer hexStringBuffer = new StringBuffer();
 
-        for (int i = 0; i < byteArray.length; i++) {
+        for (int i = 0; i < byteArray.length; i++)
+        {
             hexStringBuffer.append(byteToHex(byteArray[i]));
         }
         return hexStringBuffer.toString();
