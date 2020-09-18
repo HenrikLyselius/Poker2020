@@ -25,8 +25,7 @@ public class BackupDatabase {
 
     protected BackupDatabase()
     {
-        openOutputStreamActivePlayers();
-        openOutputStreamLoggedOutPlayers();
+
     }
 
 
@@ -41,12 +40,10 @@ public class BackupDatabase {
         catch (FileNotFoundException e)
         {
             logger.log(Level.SEVERE, "FileNotFound", e);
-            e.printStackTrace();
         }
         catch (IOException e)
         {
             logger.log(Level.SEVERE, "IOException", e);
-            e.printStackTrace();
         }
     }
 
@@ -60,15 +57,19 @@ public class BackupDatabase {
         catch (FileNotFoundException e)
         {
             logger.log(Level.SEVERE, "FileNotFound", e);
-            e.printStackTrace();
         }
         catch (IOException e)
         {
             logger.log(Level.SEVERE, "IOException", e);
-            e.printStackTrace();
         }
     }
 
+
+    public void prepare()
+    {
+        openOutputStreamActivePlayers();
+        openOutputStreamLoggedOutPlayers();
+    }
 
 
     public void backupPlayerObject(Player player, boolean playerIsActive)
@@ -92,7 +93,6 @@ public class BackupDatabase {
         catch (IOException e)
         {
             logger.log(Level.SEVERE, "IOException, Player object could not be written to back up file.", e);
-            e.printStackTrace();
         }
     }
 
@@ -101,8 +101,7 @@ public class BackupDatabase {
     public void clearActivePlayersBackUp()
     {
         closeStream(outBackupActive);
-        boolean deleted = backupFileActivePlayers.delete();
-        System.out.println(deleted);
+        backupFileActivePlayers.delete();
         openOutputStreamActivePlayers();
     }
 
@@ -130,7 +129,6 @@ public class BackupDatabase {
             catch (IOException e)
             {
                 logger.log(Level.SEVERE, "Input stream from back up file could not be opened.", e);
-                e.printStackTrace();
             }
 
             try
@@ -165,7 +163,6 @@ public class BackupDatabase {
             catch (IOException e)
             {
                 logger.log(Level.SEVERE, "Input stream from from back up file could not be opened.", e);
-                e.printStackTrace();
             }
 
             try
@@ -195,15 +192,19 @@ public class BackupDatabase {
 
     private void closeStream(Closeable stream)
     {
-        try
+        if(stream != null)
         {
-            stream.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
+            try
+            {
+                stream.close();
+            }
+            catch (IOException e)
+            {
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
         }
     }
+
 
 
     public boolean backUpFileLoggedOutPlayersExists()

@@ -44,8 +44,6 @@ public class HandleThePlay extends Thread{
             checkIfPlayersAreStillConnected();
             checkIfOnlyOnePlayerLeftAtTable();
 
-            System.out.println(playersOnServer.size());
-
             // If there are several players on the server, open a table and start a hand.
             if(playersOnServer.size() > 1)
             {
@@ -66,14 +64,13 @@ public class HandleThePlay extends Thread{
 
 
 
-    private void checkIfNewPlayersHaveJoined() {
-
+    private void checkIfNewPlayersHaveJoined()
+    {
         while(newPlayers.size() > 0)
         {
             try {playersOnServer.add(newPlayers.take());}
             catch(InterruptedException e){}
         }
-
     }
 
 
@@ -86,7 +83,6 @@ public class HandleThePlay extends Thread{
             Player player = it.next();
             player.getWebConnection().sendToPlayer("stillWannaPlay");
 
-
             String string = player.getWebConnection().getFromClientLog();
 
             if(string.equals("closeConnection") || string.equals("connectionFail"))
@@ -97,7 +93,6 @@ public class HandleThePlay extends Thread{
                 services.updateInDatabase(player, false);
             }
         }
-
     }
 
 
@@ -157,8 +152,6 @@ public class HandleThePlay extends Thread{
 
         playersOnServer.stream()
                 .forEach(player -> services.updateInDatabase(player, true));
-
-
     }
 
 

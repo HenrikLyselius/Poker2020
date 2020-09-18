@@ -16,7 +16,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class WebConnection extends Thread{
 
     private ArrayBlockingQueue<String> fromServer = new ArrayBlockingQueue<String>(60);
-    // private ArrayList<String> fromServer;
     private Socket socket;
     private DataOutputStream out;
     private DataInputStream in;
@@ -33,7 +32,6 @@ public class WebConnection extends Thread{
             out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            //fromServer = new ArrayList<String>();
         }
 
         catch(UnknownHostException u)

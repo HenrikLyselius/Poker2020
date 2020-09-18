@@ -64,7 +64,7 @@ public class GameServer {
             }
             catch(Exception e)
             {
-                logger.log(Level.SEVERE, "Connection Error", e);
+                logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }
